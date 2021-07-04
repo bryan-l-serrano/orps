@@ -45,7 +45,20 @@ def getAllPlayerStats():
     else:
         return Response(json.dumps(playerData), 200, mimetype='application/json')
 
-
+@app.route('/orps/playerStat', methods = ['POST'])
+def getPlayerStats():
+    if not request.json:
+        return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    playerData = request.get_json()
+    playerID = playerData["playerID"]
+    try:
+        returnData = readFunctions.getPlayerStatsbyID(playerID)
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
+    else:
+        stats = returnData[0]
+        del stats['playerID']
+        return Response(json.dumps({"STATUS":"SUCESS","playerData":stats}), 200, mimetype='application/json')
 
 ################################################
 ############## LOGIN ###########################
