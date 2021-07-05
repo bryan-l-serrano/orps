@@ -3,6 +3,7 @@ import sqlite3
 import random
 import string
 import os
+import readFunctions
 
 def createID():
     return ''.join(random.sample(string.ascii_letters + string.digits, k=20))
@@ -17,7 +18,7 @@ def createPlayer(playerData):
 
     cursor.execute("INSERT INTO PLAYER VALUES (?,?,?)", data)
     print('player created')
-    psdat = (pID, 1000, 0, 0, 0, 0, 0)
+    psdat = (pID, 1100, 0, 0, 0, 0, 0)
     cursor.execute("INSERT INTO PLAYER_STATS VALUES (?,?,?,?,?,?,?)", psdat)
     print('playerStats created')
     conn.commit()
@@ -38,8 +39,11 @@ def createGame(gameData):
     cursor.execute("INSERT INTO GAME VALUES (?,?,?,?)", data)
     print('game created')
     conn.commit()
-
     print('closing connection to db')
     conn.close()
-
-    return True
+    try:
+        returnGame = readFunctions.getGamebyID(gID)
+    except:
+        return False
+    else:
+        return returnGame[0]

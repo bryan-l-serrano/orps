@@ -27,6 +27,18 @@ def createPlayer():
     else:
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "player successfully created"}), 201, mimetype='application/json')
 
+@app.route('/orps/createGame', methods=['POST'])
+def createGame():
+    if not request.json:
+        return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    playerData = request.get_json()
+    try:
+        newGame = createFunction.createGame(playerData)
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
+    else:
+        return Response(json.dumps({"STATUS": "SUCCESS", "message": "game successfully created", "gameData":newGame}), 200, mimetype='application/json')
+
 ###################################################
 ######## READ ###################################
 
@@ -39,6 +51,15 @@ def getAllPlayers():
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
     else:
         return Response(json.dumps(playerData), 200, mimetype='application/json')
+
+@app.route('/orps/game', methods = ['GET'])
+def getAllGames():
+    try:
+        gameData = readFunctions.getAllGames()
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
+    else:
+        return Response(json.dumps(gameData), 200, mimetype='application/json')
 
 @app.route('/orps/playerStats', methods =['GET'])
 def getAllPlayerStats():
@@ -168,6 +189,38 @@ def updateThrown():
         return Response(json.dumps({"STATUS":"SUCESS","playerData":stats}), 200, mimetype='application/json')
 
 
+@app.route('/orps/updateStats', methods = ['POST'])
+def updateStats():
+    if not request.json:
+        return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    playerData = request.get_json()
+    player1ID = playerData['player1ID']
+    player2ID = playerData['player2ID']
+    playerWonID = playerData['winPlayerID']
+    gameID = playerData['gameID']
+    print(player1ID)
+    try:
+        player1Stats = readFunctions.getPlayerStatsbyID(player1ID)
+        print(player1Stats)
+        player2Stats = readFunctions.getPlayerStatsbyID(player2ID)
+        print(player2Stats)
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "Invalid ID's"}), 400, mimetype='application/json')
+
+    try:
+        updateFunctions.updatePlayerStats(player1Stats[0], player2Stats[0], playerWonID)
+        print("player 1 updated")
+        updateFunctions.updatePlayerStats(player2Stats[0], player1Stats[0], playerWonID)
+        print("player 2 updated")
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "unable to update player"}), 400, mimetype='application/json')
+    
+    try:
+        updateFunctions.updateGame(gameID, playerWonID)
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "unable to update game"}), 400, mimetype='application/json')
+    else:
+        return Response(json.dumps({"STATUS":"SUCCESS", "message":"Players and Game Successfully Updated"}), 200, mimetype='application/json')
 
 
 if __name__ == '__main__':

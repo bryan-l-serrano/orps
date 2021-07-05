@@ -64,6 +64,16 @@ def getGamebyID(idval):
     conn.close()
     return returnData
 
+def getAllGames():
+    conn = sqlite3.connect('/orps/orps.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM GAME")
+    returnData = [dict(row) for row in cursor.fetchall()]
+    conn.commit()
+    conn.close()
+    return returnData
+
 def getGamesbyPlayerID(idval):
     conn = sqlite3.connect('/orps/orps.db')
     conn.row_factory = sqlite3.Row
