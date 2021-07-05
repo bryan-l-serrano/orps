@@ -29,13 +29,13 @@ def createPlayer(playerData):
 
 def createGame(gameData):
     gID = createID()
-    data = (gID, gameData["player1ID"], gameData['player2ID'], null, null, null)
+    data = (gID, gameData["player1ID"], gameData['player2ID'], "")
     print(data)
     conn = sqlite3.connect('/orps/orps.db')
     print('connected to db')
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO GAME VALUES (?,?,?, ?, ?, ?)", data)
+    cursor.execute("INSERT INTO GAME VALUES (?,?,?,?)", data)
     print('game created')
     conn.commit()
 
