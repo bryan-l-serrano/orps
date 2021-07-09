@@ -28,22 +28,18 @@ def createPlayer(playerData):
 
     return True
 
-def createGame(gameData):
+def createGame(player1ID, player2ID):
     gID = createID()
-    data = (gID, gameData["player1ID"], gameData['player2ID'], "")
+    data = (gID, player1ID, player2ID, "", "CREATED", "", "", 1, 0, 0)
     print(data)
     conn = sqlite3.connect('/orps/orps.db')
     print('connected to db')
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO GAME VALUES (?,?,?,?)", data)
+    cursor.execute("INSERT INTO GAME VALUES (?,?,?,?,?,?,?,?,?,?)", data)
     print('game created')
     conn.commit()
     print('closing connection to db')
     conn.close()
-    try:
-        returnGame = readFunctions.getGamebyID(gID)
-    except:
-        return False
-    else:
-        return returnGame[0]
+    returnGame = readFunctions.getGamebyID(gID)
+    return returnGame

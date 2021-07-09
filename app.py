@@ -6,12 +6,57 @@ import updateFunctions
 import json
 from flask_cors import CORS
 import time
+import threading
 
 app = Flask(__name__)
 CORS(app)
-
 playerQueue = []
 
+##################################################
+######### HELPER FUNCTIONS########################
+
+def set_interval(func, sec, exitFunction):
+    def func_wrapper():
+        if not exitFunction():
+            set_interval(func, sec, exitFunction)
+            func()
+    t = threading.Timer(sec, func_wrapper)
+    t.start()
+    return t
+
+def createGameCheckerFunction(playerID,timesAttempted):
+    try:
+        gameData = readFunctions.getGamebyPlayerIDAndStatus("playerID")
+    except:
+        print('no game available')
+    else:
+        if bool(gameData):
+            gameFound[0] = True
+            #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json'))
+            return Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json')
+        if len(playerQueue)>= 2:
+            checkqueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
+            eloDifference = 60 + 20 * timesAttempted
+            for x in range(1, len(checkqueue)):
+                if abs(stats['eloRating'] - checkqueue[x]['eloRating']) <= eloDifference:
+                    try:
+                        newGame = createFunction.createGame(playerID, checkqueue[i]['playerID'])
+                    except:
+                        #gameResponse.append(Response(json.dumps({"STATUS": "ERROR", "message": "cannot create game"}), 400, mimetype='application/json'))
+                        return Response(json.dumps({"STATUS": "ERROR", "message": "cannot create game"}), 400, mimetype='application/json')
+                    else:
+                        playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID or i['playerID'] == checkqueue[x]['playerID'])]
+                        #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json'))
+                        return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json')      
+            timesAttempted[0] += 1
+            print("playerID: " + str(playerID) + " times attempted: " + str(timesAttempted)[0])
+            if timesAttempted[0] == 7:
+                #gameResponse.append(Response(json.dumps({"STATUS": "ERROR", "message": "no players found"}), 400, mimetype='application/json'))
+                return Response(json.dumps({"STATUS": "ERROR", "message": "no players found"}), 400, mimetype='application/json')
+
+def exitFunction(times):
+    if times[0] == 6:
+        return true
 
 #######################################
 #CREATE
@@ -112,44 +157,100 @@ def addToQueue():
         return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
     playerData = request.get_json()
     playerID = playerData["playerID"]
+    gameResponse = []
+    gameFound = [False]
+    timesAttempted = [0]
+    global playerQueue
     try:
         returnData = readFunctions.getPlayerStatsbyID(playerID)
-    except:
-        return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
-    else:
         timeEntered = time.time()
         stats = returnData[0]
         toAddToQueue = {"playerID": playerID, "eloRating": stats["eloRating"], "timeEnteredQueue":timeEntered}
         playerQueue.append(toAddToQueue)
+        print(playerQueue)
+        return Response(json.dumps({"STATUS": "SUCCESS", "message": "Player added to Queue"}), 200, mimetype='application/json')
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "Issue adding player to queue"}), 400, mimetype='application/json')
+    
+    # set_interval(createGameCheckerFunction(playerID, gameFound, timesAttempted), 10, exitFunction(timesAttempted), gameResponse)
+
+    # while len(gameResponse) < 1:
         
 
+    return gameResponse[0]
+
+        # if len(playerQueue)>= 2:
+        #     playerData = {}
+        #     eloDifference = 999999
+        #     closestRatedPlayerInQueue = 0
+        #     firstPlayer = playerQueue[0]
+        #     for x in range(1, len(playerQueue)):
+        #         if abs(firstPlayer["eloRating"] - playerQueue[x]["eloRating"]) < eloDifference:
+        #             eloDifference = abs(firstPlayer["eloRating"] - playerQueue[x]["eloRating"])
+        #             closestRatedPlayerInQueue = x
+        #             if eloDifference == 0:
+        #                 playerData = {"player1ID":firstPlayer["playerID"], "player2ID":playerQueue[x]["playerID"]}
+        #                 print(playerData)
+        #     if not bool(playerData):
+        #         playerData = {"player1ID":firstPlayer["playerID"], "player2ID":playerQueue[closestRatedPlayerInQueue]["playerID"]}
+        #         print(playerData)
+        #     try:
+        #         createFunction.createGame(playerData)
+        #         del playerQueue[closestRatedPlayerInQueue]
+        #         del playerQueue[0]
+        #     except:
+        #         print("Not able to create game")
+        # print(playerQueue)
+
+@app.route('/orps/check', methods=['POST'])
+def addToGame():
+    if not request.json:
+        return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    playerData = request.get_json()
+    playerID = playerData["playerID"]
+    timesAttempted = playerData['requestNumber']
+    global playerQueue
+    gameData = False
+    if timesAttempted < 6:
+        stats = readFunctions.getPlayerStatsbyID(playerID)
+        try:
+            gameData = readFunctions.getGamebyPlayerIDAndStatus(playerID)
+        except:
+            print('no game available')
+        if bool(gameData):
+            #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json'))
+            return Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json')
         if len(playerQueue)>= 2:
-            playerData = {}
-            eloDifference = 999999
-            closestRatedPlayerInQueue = 0
-            firstPlayer = playerQueue[0]
-            for x in range(1, len(playerQueue)):
-                if abs(firstPlayer["eloRating"] - playerQueue[x]["eloRating"]) < eloDifference:
-                    eloDifference = abs(firstPlayer["eloRating"] - playerQueue[x]["eloRating"])
-                    closestRatedPlayerInQueue = x
-                    if eloDifference == 0:
-                        playerData = {"player1ID":firstPlayer["playerID"], "player2ID":playerQueue[x]["playerID"]}
-                        print(playerData)
-            if not bool(playerData):
-                playerData = {"player1ID":firstPlayer["playerID"], "player2ID":playerQueue[closestRatedPlayerInQueue]["playerID"]}
-                print(playerData)
-            try:
-                createFunction.createGame(playerData)
-                del playerQueue[closestRatedPlayerInQueue]
-                del playerQueue[0]
-            except:
-                print("Not able to create game")
-        print(playerQueue)
-
-
-
-        return Response(json.dumps({"STATUS":"SUCESS","message":"Player Added to Queue","timeStamp":timeEntered}), 200, mimetype='application/json')
-
+            checkqueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
+            print(checkqueue)
+            eloDifference = 40 + 20 * timesAttempted
+            for x in range(0, len(checkqueue)):
+                if abs(int(stats[0]['eloRating']) - int(checkqueue[x]['eloRating'])) <= eloDifference:
+                    try:
+                        newGame = createFunction.createGame(playerID, checkqueue[x]['playerID'])
+                    except:
+                        #gameResponse.append(Response(json.dumps({"STATUS": "ERROR", "message": "cannot create game"}), 400, mimetype='application/json'))
+                        return Response(json.dumps({"STATUS": "ERROR", "message": "cannot create game"}), 400, mimetype='application/json')
+                    else:
+                        playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID or i['playerID'] == checkqueue[x]['playerID'])]
+                        #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json'))
+                        print(newGame[0])
+                        return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json')      
+            
+            return Response(json.dumps({"STATUS": "SUCCESS", "message": "No game found"}), 200, mimetype='application/json')
+        else:
+            return Response(json.dumps({"STATUS": "SUCCESS", "message": "Not Enough Players"}), 200, mimetype='application/json')
+    else:
+        try:
+            gameData = readFunctions.getGamebyPlayerIDAndStatus("playerID")
+        except:
+            print('no game available')
+        else:
+            if bool(gameData):
+                #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json'))
+                return Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json')
+            playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
+            return Response(json.dumps({"STATUS": "SUCCESS", "message": "Could not Join Game; player removed from queue"}), 200, mimetype='application/json')
 
 ##################################################################################
 #################### UPDATE ####################################
