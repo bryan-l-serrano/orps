@@ -11,6 +11,7 @@ import threading
 app = Flask(__name__)
 CORS(app)
 playerQueue = []
+gameList = []
 
 ##################################################
 ######### HELPER FUNCTIONS########################
@@ -161,13 +162,16 @@ def addToQueue():
     gameFound = [False]
     timesAttempted = [0]
     global playerQueue
+    for x in playerQueue:
+        if x['playerID'] == playerID:
+            return Response(json.dumps({"STATUS": "ERROR", "message": "Player already in queue"}), 400, mimetype='application/json')
     try:
         returnData = readFunctions.getPlayerStatsbyID(playerID)
         timeEntered = time.time()
         stats = returnData[0]
         toAddToQueue = {"playerID": playerID, "eloRating": stats["eloRating"], "timeEnteredQueue":timeEntered}
         playerQueue.append(toAddToQueue)
-        print(playerQueue)
+        #print(playerQueue)
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "Player added to Queue"}), 200, mimetype='application/json')
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "Issue adding player to queue"}), 400, mimetype='application/json')
@@ -210,6 +214,7 @@ def addToGame():
     playerID = playerData["playerID"]
     timesAttempted = playerData['requestNumber']
     global playerQueue
+    global gameList
     gameData = False
     if timesAttempted < 6:
         stats = readFunctions.getPlayerStatsbyID(playerID)
@@ -222,7 +227,7 @@ def addToGame():
             return Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json')
         if len(playerQueue)>= 2:
             checkqueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
-            print(checkqueue)
+            #print(checkqueue)
             eloDifference = 40 + 20 * timesAttempted
             for x in range(0, len(checkqueue)):
                 if abs(int(stats[0]['eloRating']) - int(checkqueue[x]['eloRating'])) <= eloDifference:
@@ -234,7 +239,9 @@ def addToGame():
                     else:
                         playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID or i['playerID'] == checkqueue[x]['playerID'])]
                         #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json'))
-                        print(newGame[0])
+                        #print(newGame[0])
+                        print(playerQueue)
+                        gameList.append({"gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID'], "player1thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0})
                         return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json')      
             
             return Response(json.dumps({"STATUS": "SUCCESS", "message": "No game found"}), 200, mimetype='application/json')
@@ -263,6 +270,7 @@ def updateThrown():
     playerData = request.get_json()
     playerID = playerData["playerID"]
     handThrown = playerData["thrown"]
+    gameID = playerData["gameID"]
     try:
         playerStats = readFunctions.getPlayerStatsbyID(playerID)
     except:
@@ -279,7 +287,7 @@ def updateThrown():
     else:
         return Response(json.dumps({"STATUS": "ERROR", "message": "What did you just send?"}), 400, mimetype='application/json')
 
-    print("rock: " + str(rock) + "\npaper: " + str(paper) + "\nscissors: " + str(scissors))
+    #print("rock: " + str(rock) + "\npaper: " + str(paper) + "\nscissors: " + str(scissors))
     try:
         updateThrown = updateFunctions.updateThrown(rock, paper, scissors, playerID)
     except:
@@ -287,7 +295,7 @@ def updateThrown():
     else:
         stats = updateThrown[0]
         del stats['playerID']
-        return Response(json.dumps({"STATUS":"SUCESS","playerData":stats}), 200, mimetype='application/json')
+    
 
 
 @app.route('/orps/updateStats', methods = ['POST'])
