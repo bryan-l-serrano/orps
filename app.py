@@ -241,7 +241,7 @@ def addToGame():
                         #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json'))
                         #print(newGame[0])
                         print(playerQueue)
-                        gameList.append({"gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID'], "player1thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0})
+                        gameList.append({"gameID":newGame[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID'], "player1thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0})
                         return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json')      
             
             return Response(json.dumps({"STATUS": "SUCCESS", "message": "No game found"}), 200, mimetype='application/json')
