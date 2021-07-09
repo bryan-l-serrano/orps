@@ -164,7 +164,7 @@ def addToQueue():
     global playerQueue
     for x in playerQueue:
         if x['playerID'] == playerID:
-            return Response(json.dumps({"STATUS": "ERROR", "message": "Player already in queue"}), 400, mimetype='application/json')
+            playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
     try:
         returnData = readFunctions.getPlayerStatsbyID(playerID)
         timeEntered = time.time()
