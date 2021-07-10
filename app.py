@@ -321,7 +321,8 @@ def updateThrown():
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
     else:
-        
+        return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 400, mimetype='application/json')
+
     
 
 
