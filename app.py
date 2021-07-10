@@ -271,6 +271,16 @@ def updateThrown():
     playerID = playerData["playerID"]
     handThrown = playerData["thrown"]
     gameID = playerData["gameID"]
+    player1ID = None
+    player2ID = None
+    global gameList
+
+    for games in gameList:
+        if games['gameID'] == gameID:
+            if games['player1ID'] == playerID:
+                player1ID = playerID
+            else:
+                player2ID = playerID
     try:
         playerStats = readFunctions.getPlayerStatsbyID(playerID)
     except:
@@ -280,21 +290,38 @@ def updateThrown():
     scissors = int(playerStats[0]["scissorsThrown"])
     if handThrown == "rock":
         rock += 1
+        for games in gameList:
+            if games['gameID'] == gameID:
+                if(player1ID):
+                    games['player1Thrown'] == 'rock'
+                else:
+                    games['player2Thrown'] == 'rock'
     elif handThrown == "paper":
         paper += 1
+        for games in gameList:
+            if games['gameID'] == gameID:
+                if(player1ID):
+                    games['player1Thrown'] == 'paper'
+                else:
+                    games['player2Thrown'] == 'paper'
     elif handThrown == "scissors":
         scissors += 1
+        for games in gameList:
+            if games['gameID'] == gameID:
+                if(player1ID):
+                    games['player1Thrown'] == 'scissors'
+                else:
+                    games['player2Thrown'] == 'scissors'
     else:
         return Response(json.dumps({"STATUS": "ERROR", "message": "What did you just send?"}), 400, mimetype='application/json')
-
+    print(gameList)
     #print("rock: " + str(rock) + "\npaper: " + str(paper) + "\nscissors: " + str(scissors))
     try:
         updateThrown = updateFunctions.updateThrown(rock, paper, scissors, playerID)
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
     else:
-        stats = updateThrown[0]
-        del stats['playerID']
+        
     
 
 
