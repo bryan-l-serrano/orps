@@ -293,25 +293,25 @@ def updateThrown():
         for games in gameList:
             if games['gameID'] == gameID:
                 if(player1ID):
-                    games['player1Thrown'] == 'rock'
+                    games['player1Thrown'] = 'rock'
                 else:
-                    games['player2Thrown'] == 'rock'
+                    games['player2Thrown'] = 'rock'
     elif handThrown == "paper":
         paper += 1
         for games in gameList:
             if games['gameID'] == gameID:
                 if(player1ID):
-                    games['player1Thrown'] == 'paper'
+                    games['player1Thrown'] = 'paper'
                 else:
-                    games['player2Thrown'] == 'paper'
+                    games['player2Thrown'] = 'paper'
     elif handThrown == "scissors":
         scissors += 1
         for games in gameList:
             if games['gameID'] == gameID:
                 if(player1ID):
-                    games['player1Thrown'] == 'scissors'
+                    games['player1Thrown'] = 'scissors'
                 else:
-                    games['player2Thrown'] == 'scissors'
+                    games['player2Thrown'] = 'scissors'
     else:
         return Response(json.dumps({"STATUS": "ERROR", "message": "What did you just send?"}), 400, mimetype='application/json')
     print(gameList)
@@ -321,7 +321,7 @@ def updateThrown():
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
     else:
-        return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 400, mimetype='application/json')
+        return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 200, mimetype='application/json')
 
     
 
