@@ -345,7 +345,7 @@ def updateThrown():
         for games in gameList:
             if games['gameID'] == gameID:
                 if(games['player1Thrown'] != "" and games['player2Thrown'] != ""):
-                    result == rpsComare(games['player1Thrown'], games['player2Thrown'], games["player1ID"], games['player2ID'])
+                    result = rpsComare(games['player1Thrown'], games['player2Thrown'], games["player1ID"], games['player2ID'])
                     if result == draw:
                         games['result'] == "draw"
                     elif result == games['player1ID']:
