@@ -342,7 +342,7 @@ def updateThrown():
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
     else:
-        for games in gamelist:
+        for games in gameList:
             if games['gameID'] == gameID:
                 if(games['player1Thrown'] != "" and games[player2Thrown] != ""):
                     result == rpsComare(games['player1Thrown'], games['player2Thrown'], games["player1ID"], games['player2ID'])
@@ -368,6 +368,7 @@ def updateThrown():
 def checkRound():
     if not request.json:
         return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    playerData = request.get_json()
     gameID = playerData["gameID"]
     global gameList
 
