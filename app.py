@@ -364,16 +364,8 @@ def updateThrown():
                     else:
                         return Response(json.dumps({"STATUS": "ERROR", "message": "you what"}), 400, mimetype='application/json')
                 if (games['player1Wins'] == 2):
-                    if(player1ID):
-                        games['player1Check'] = True
-                    else:
-                        games['player2Check'] = True
                     games['finalGameStatus'] = games['player1ID']
                 if (games['player2Wins'] == 2):
-                    if(player1ID):
-                        games['player1Check'] = True
-                    else:
-                        games['player2Check'] = True
                     games['finalGameStatus'] = games['player2ID']
         #print(gameList)
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 200, mimetype='application/json')
@@ -385,11 +377,27 @@ def checkRound():
         return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
     playerData = request.get_json()
     gameID = playerData["gameID"]
+    playerID = playerData['playerID']
+    player1ID = None
+    player2ID = None
     global gameList
 
     for games in gameList:
         if games['gameID'] == gameID:
+            if games['player1ID'] == playerID:
+                player1ID = playerID
+            else:
+                player2ID = playerID
+
+
+    for games in gameList:
+        if games['gameID'] == gameID:
             #print(games)
+            if games['finalGameStatus']:
+                if(player1ID):
+                    games['player1Check'] = True
+                else:
+                    games['player2Check'] = True
             return Response(json.dumps({"STATUS": "SUCCESS", "gameData": games}), 200, mimetype='application/json')
     return Response(json.dumps({"STATUS": "ERROR", "message":"gameID was not found -> deleted before accessing"}), 400, mimetype='application/json')
 
