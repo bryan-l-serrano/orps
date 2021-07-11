@@ -392,7 +392,7 @@ def updateStats():
     playerData = request.get_json()
     player1ID = playerData['player1ID']
     player2ID = playerData['player2ID']
-    playerWonID = playerData['winPlayerID']
+    playerWonID = playerData['playerWonID']
     gameID = playerData['gameID']
     print(player1ID)
     try:
