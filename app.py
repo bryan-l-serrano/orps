@@ -262,7 +262,7 @@ def addToGame():
                         #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json'))
                         #print(newGame[0])
                         print(playerQueue)
-                        gameList.append({"gameID":newGame[0]['gameID'], "player1ID":newGame[0]['player1ID'], "player2ID":newGame[0]['player2ID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":""})
+                        gameList.append({"gameID":newGame[0]['gameID'], "player1ID":newGame[0]['player1ID'], "player2ID":newGame[0]['player2ID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":"", "player1Check":False, "player2Check":False})
                         return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json')      
             
             return Response(json.dumps({"STATUS": "SUCCESS", "message": "No game found"}), 200, mimetype='application/json')
@@ -364,9 +364,17 @@ def updateThrown():
                     else:
                         return Response(json.dumps({"STATUS": "ERROR", "message": "you what"}), 400, mimetype='application/json')
                 if (games['player1Wins'] == 2):
+                    if(player1ID):
+                        games['player1Check'] = True
+                    else:
+                        games['player2Check'] = True
                     games['finalGameStatus'] = games['player1ID']
                 if (games['player2Wins'] == 2):
-                     games['finalGameStatus'] = games['player1ID']
+                    if(player1ID):
+                        games['player1Check'] = True
+                    else:
+                        games['player2Check'] = True
+                    games['finalGameStatus'] = games['player2ID']
         #print(gameList)
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 200, mimetype='application/json')
 
@@ -383,6 +391,7 @@ def checkRound():
         if games['gameID'] == gameID:
             #print(games)
             return Response(json.dumps({"STATUS": "SUCCESS", "gameData": games}), 200, mimetype='application/json')
+    return Response(json.dumps({"STATUS": "ERROR", "message":"gameID was not found -> deleted before accessing"}), 400, mimetype='application/json')
 
 
 @app.route('/orps/updateStats', methods = ['POST'])
