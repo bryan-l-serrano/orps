@@ -344,7 +344,7 @@ def updateThrown():
     else:
         for games in gameList:
             if games['gameID'] == gameID:
-                if(games['player1Thrown'] != "" and games[player2Thrown] != ""):
+                if(games['player1Thrown'] != "" and games['player2Thrown'] != ""):
                     result == rpsComare(games['player1Thrown'], games['player2Thrown'], games["player1ID"], games['player2ID'])
                     if result == draw:
                         games['result'] == "draw"
@@ -374,6 +374,7 @@ def checkRound():
 
     for games in gameList:
         if games['gameID'] == gameID:
+            print(games)
             return Response(json.dumps({"STATUS": "SUCCESS", "gameData": games}), 200, mimetype='application/json')
 
 
