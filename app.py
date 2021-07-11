@@ -355,12 +355,18 @@ def updateThrown():
                     result = rpsComare(games['player1Thrown'], games['player2Thrown'], games["player1ID"], games['player2ID'])
                     if result == "draw":
                         games['result'] = "draw"
+                        games['player1Thrown'] == ""
+                        games['player2Thrown'] == ""
                     elif result == games['player1ID']:
                         games['player1Wins'] += 1
                         games['result'] = result
+                        games['player1Thrown'] == ""
+                        games['player2Thrown'] == ""
                     elif result == games['player2ID']:
                         games['player2Wins'] += 1
                         games['result'] = result
+                        games['player1Thrown'] == ""
+                        games['player2Thrown'] == ""
                     else:
                         return Response(json.dumps({"STATUS": "ERROR", "message": "you what"}), 400, mimetype='application/json')
                 if (games['player1Wins'] == 2):
@@ -368,6 +374,7 @@ def updateThrown():
                 if (games['player2Wins'] == 2):
                     games['finalGameStatus'] = games['player2ID']
         #print(gameList)
+
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 200, mimetype='application/json')
 
     
