@@ -342,7 +342,7 @@ def updateThrown():
                     games['player2Thrown'] = 'nothing'
     else:
         return Response(json.dumps({"STATUS": "ERROR", "message": "What did you just send?"}), 400, mimetype='application/json')
-    print(gameList)
+    #print(gameList)
     #print("rock: " + str(rock) + "\npaper: " + str(paper) + "\nscissors: " + str(scissors))
     try:
         updateThrown = updateFunctions.updateThrown(rock, paper, scissors, playerID)
@@ -359,7 +359,7 @@ def updateThrown():
                         games['player1Wins'] += 1
                         games['result'] = result
                     elif result == games['player2ID']:
-                        games['player2Wins'] +=1
+                        games['player2Wins'] += 1
                         games['result'] = result
                     else:
                         return Response(json.dumps({"STATUS": "ERROR", "message": "you what"}), 400, mimetype='application/json')
@@ -367,7 +367,7 @@ def updateThrown():
                     games['finalGameStatus'] = games['player1ID']
                 if (games['player2Wins'] == 2):
                      games['finalGameStatus'] = games['player1ID']
-        print(gameList)
+        #print(gameList)
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 200, mimetype='application/json')
 
     
@@ -381,12 +381,13 @@ def checkRound():
 
     for games in gameList:
         if games['gameID'] == gameID:
-            print(games)
+            #print(games)
             return Response(json.dumps({"STATUS": "SUCCESS", "gameData": games}), 200, mimetype='application/json')
 
 
 @app.route('/orps/updateStats', methods = ['POST'])
 def updateStats():
+    global gameList
     if not request.json:
         return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
     playerData = request.get_json()
@@ -394,7 +395,7 @@ def updateStats():
     player2ID = playerData['player2ID']
     playerWonID = playerData['playerWonID']
     gameID = playerData['gameID']
-    print(player1ID)
+    #print(player1ID)
     try:
         player1Stats = readFunctions.getPlayerStatsbyID(player1ID)
         print(player1Stats)
@@ -416,6 +417,7 @@ def updateStats():
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "unable to update game"}), 400, mimetype='application/json')
     else:
+        gameList = [ i for i in gamesList if not (i['gameID'] == gameID)]
         return Response(json.dumps({"STATUS":"SUCCESS", "message":"Players and Game Successfully Updated"}), 200, mimetype='application/json')
 
 
