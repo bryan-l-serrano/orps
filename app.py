@@ -346,20 +346,20 @@ def updateThrown():
             if games['gameID'] == gameID:
                 if(games['player1Thrown'] != "" and games['player2Thrown'] != ""):
                     result = rpsComare(games['player1Thrown'], games['player2Thrown'], games["player1ID"], games['player2ID'])
-                    if result == draw:
-                        games['result'] == "draw"
+                    if result == "draw":
+                        games['result'] = "draw"
                     elif result == games['player1ID']:
                         games['player1Wins'] += 1
-                        games['result'] == result
+                        games['result'] = result
                     elif result == games['player2ID']:
                         games['player2Wins'] +=1
-                        games['result'] == result
+                        games['result'] = result
                     else:
                         return Response(json.dumps({"STATUS": "ERROR", "message": "you what"}), 400, mimetype='application/json')
                 if (games['player1Wins'] == 2):
-                    games['finalGameStatus'] == games['player1ID']
+                    games['finalGameStatus'] = games['player1ID']
                 if (games['player2Wins'] == 2):
-                     games['finalGameStatus'] == games['player1ID']
+                     games['finalGameStatus'] = games['player1ID']
         print(gameList)
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 200, mimetype='application/json')
 
