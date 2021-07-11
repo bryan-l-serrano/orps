@@ -333,6 +333,13 @@ def updateThrown():
                     games['player1Thrown'] = 'scissors'
                 else:
                     games['player2Thrown'] = 'scissors'
+    elif handThrown == "nothing":
+        for games in gameList:
+            if games['gameID'] == gameID:
+                if(player1ID):
+                    games['player1Thrown'] = 'nothing'
+                else:
+                    games['player2Thrown'] = 'nothing'
     else:
         return Response(json.dumps({"STATUS": "ERROR", "message": "What did you just send?"}), 400, mimetype='application/json')
     print(gameList)
