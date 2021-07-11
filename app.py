@@ -369,6 +369,8 @@ def updateThrown():
                         games['player2Thrown'] = ""
                     else:
                         return Response(json.dumps({"STATUS": "ERROR", "message": "you what"}), 400, mimetype='application/json')
+                elif (games['player1Thrown'] != "" or games['player2Thrown'] != ""):
+                    games['results'] = ""
                 if (games['player1Wins'] == 2):
                     games['finalGameStatus'] = games['player1ID']
                 if (games['player2Wins'] == 2):
