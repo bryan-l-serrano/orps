@@ -59,6 +59,27 @@ def exitFunction(times):
     if times[0] == 6:
         return true
 
+def rpsComare(p1, p2, p1ID, p2ID):
+    if(p1 == p2):
+        return "draw"
+    elif(p1 == "nothing"):
+        return p2ID
+    elif(p2 == "nothing"):
+        return p1ID
+    elif(p1 == "rock" and p2 == "paper"):
+        return p2ID
+    elif(p1 == "rock" and p2 == "scissors"):
+        return p1ID
+    elif(p1 == "paper" and p2 == "rock"):
+        return p1ID
+    elif(p1 == "paper" and p2 == "scissors"):
+        return p2ID
+    elif(p1 == "scissors" and p2 == "rock"):
+        return p2ID
+    elif(p1 == "scissors" and p2 == "paper"):
+        return p1ID
+    
+
 #######################################
 #CREATE
 @app.route('/orps/newPlayer', methods=['POST'])
@@ -241,7 +262,7 @@ def addToGame():
                         #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json'))
                         #print(newGame[0])
                         print(playerQueue)
-                        gameList.append({"gameID":newGame[0]['gameID'], "player1ID":newGame[0]['player1ID'], "player2ID":newGame[0]['player2ID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0})
+                        gameList.append({"gameID":newGame[0]['gameID'], "player1ID":newGame[0]['player1ID'], "player2ID":newGame[0]['player2ID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":""})
                         return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json')      
             
             return Response(json.dumps({"STATUS": "SUCCESS", "message": "No game found"}), 200, mimetype='application/json')
@@ -321,9 +342,38 @@ def updateThrown():
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
     else:
+        for games in gamelist:
+            if games['gameID'] == gameID:
+                if(games['player1Thrown'] != "" and games[player2Thrown] != ""):
+                    result == rpsComare(games['player1Thrown'], games['player2Thrown'], games["player1ID"], games['player2ID'])
+                    if result == draw:
+                        games['result'] == "draw"
+                    elif result == games['player1ID']:
+                        games['player1Wins'] += 1
+                        games['result'] == result
+                    elif result == games['player2ID']:
+                        games['player2Wins'] +=1
+                        games['result'] == result
+                    else:
+                        return Response(json.dumps({"STATUS": "ERROR", "message": "you what"}), 400, mimetype='application/json')
+                if (games['player1Wins'] == 2):
+                    games['finalGameStatus'] == games['player1ID']
+                if (games['player2Wins'] == 2):
+                     games['finalGameStatus'] == games['player1ID']
+        print(gameList)
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "you did it!"}), 200, mimetype='application/json')
 
     
+@app.route('/orps/checkRound', methods = ['POST'])
+def checkRound():
+    if not request.json:
+        return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    gameID = playerData["gameID"]
+    global gameList
+
+    for games in gameList:
+        if games['gameID'] == gameID:
+            return Response(json.dumps({"STATUS": "SUCCESS", "gameData": games}), 200, mimetype='application/json')
 
 
 @app.route('/orps/updateStats', methods = ['POST'])
