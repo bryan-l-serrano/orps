@@ -48,7 +48,7 @@ def getPlayerStatsbyID(idval):
     conn = sqlite3.connect('/orps/orps.db')
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM PLAYER_STATS WHERE playerID = ?", (idval,))
+    cursor.execute("SELECT eloRating, rocksThrown,papersThrow, scissorsThrown, gamesPlayed,gamesWon, PLAYER.username FROM PLAYER_STATS INNER JOIN PLAYER ON PLAYER.playerID = PLAYER_STATS.playerID WHERE PLAYER_STATS.playerID = ?", (idval,))
     returnData = [dict(row) for row in cursor.fetchall()]
     conn.commit()
     conn.close()

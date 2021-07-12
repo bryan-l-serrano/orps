@@ -149,7 +149,6 @@ def getPlayerStats():
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')
     else:
         stats = returnData[0]
-        del stats['playerID']
         return Response(json.dumps({"STATUS":"SUCESS","playerData":stats}), 200, mimetype='application/json')
 
 ################################################
