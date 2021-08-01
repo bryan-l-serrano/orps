@@ -35,6 +35,8 @@ def updatePlayerStats(player1Stats, player2Stats, playerWinID):
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     print('connected to database')
+    print(player1Stats)
+    print(playerWinID)
     if player1Stats["playerID"] == playerWinID:
         win = 1
         playerWon = True
