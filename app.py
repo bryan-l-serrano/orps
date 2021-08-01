@@ -430,6 +430,7 @@ def updateStats():
         return Response(json.dumps({"STATUS": "ERROR", "message": "Invalid ID's"}), 400, mimetype='application/json')
 
     try:
+        print("atempting to update")
         updateFunctions.updatePlayerStats(player1Stats[0], player2Stats[0], playerWonID)
         print("player 1 updated")
         updateFunctions.updatePlayerStats(player2Stats[0], player1Stats[0], playerWonID)
