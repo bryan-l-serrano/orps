@@ -421,14 +421,8 @@ def updateStats():
         print("player 2 updated")
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "unable to update player"}), 400, mimetype='application/json')
-    
-    try:
-        updateFunctions.updateGame(gameID, playerWonID)
-    except:
-        return Response(json.dumps({"STATUS": "ERROR", "message": "unable to update game"}), 400, mimetype='application/json')
-    else:
-        gameList = [ i for i in gameList if not (i['gameID'] == gameID)]
-        return Response(json.dumps({"STATUS":"SUCCESS", "message":"Players and Game Successfully Updated"}), 200, mimetype='application/json')
+    gameList = [ i for i in gameList if not (i['gameID'] == gameID)]
+    return Response(json.dumps({"STATUS":"SUCCESS", "message":"Players and Game Successfully Updated"}), 200, mimetype='application/json')
 
 
 if __name__ == '__main__':
