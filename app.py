@@ -252,7 +252,7 @@ def addToGame():
             for x in range(0, len(checkqueue)):
                 if abs(int(stats[0]['eloRating']) - int(checkqueue[x]['eloRating'])) <= eloDifference:
                     newGameID = createID()
-                    gameList.append({"gameID":newGameID, "player1ID":playerId, "player2ID":checkqueue[x]['playerID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":"", "player1Check":False, "player2Check":False})
+                    gameList.append({"gameID":newGameID, "player1ID":playerID, "player2ID":checkqueue[x]['playerID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":"", "player1Check":False, "player2Check":False})
                     playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID or i['playerID'] == checkqueue[x]['playerID'])]
                     print(playerQueue)
                     return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGameID, "player1ID": playerID, "player2ID":checkqueue[x]['playerID']}), 200, mimetype='application/json')            
