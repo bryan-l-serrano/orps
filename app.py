@@ -7,6 +7,8 @@ import json
 from flask_cors import CORS
 import time
 import threading
+import random
+import string
 
 app = Flask(__name__)
 CORS(app)
@@ -15,6 +17,9 @@ gameList = []
 
 ##################################################
 ######### HELPER FUNCTIONS########################
+
+def createID():
+    return ''.join(random.sample(string.ascii_letters + string.digits, k=20))
 
 def set_interval(func, sec, exitFunction):
     def func_wrapper():
@@ -238,46 +243,25 @@ def addToGame():
     gameData = False
     if timesAttempted < 6:
         stats = readFunctions.getPlayerStatsbyID(playerID)
-        try:
-            gameData = readFunctions.getGamebyPlayerIDAndStatus(playerID)
-        except:
-            print('no game available')
-        if bool(gameData):
-            #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json'))
-            return Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json')
+        for games in gameList:
+            if games['player1ID'] == playerID or games['player2ID'] == playerID:
+                return Response(json.dumps({"STATUS": "SUCCESS", "gameID":games['gameID'], "player1ID":games['player1ID'], "player2ID":games['player2ID']}), 200, mimetype='application/json')
         if len(playerQueue)>= 2:
             checkqueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
-            #print(checkqueue)
             eloDifference = 40 + 20 * timesAttempted
             for x in range(0, len(checkqueue)):
                 if abs(int(stats[0]['eloRating']) - int(checkqueue[x]['eloRating'])) <= eloDifference:
-                    try:
-                        newGame = createFunction.createGame(playerID, checkqueue[x]['playerID'])
-                    except:
-                        #gameResponse.append(Response(json.dumps({"STATUS": "ERROR", "message": "cannot create game"}), 400, mimetype='application/json'))
-                        return Response(json.dumps({"STATUS": "ERROR", "message": "cannot create game"}), 400, mimetype='application/json')
-                    else:
-                        playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID or i['playerID'] == checkqueue[x]['playerID'])]
-                        #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json'))
-                        #print(newGame[0])
-                        print(playerQueue)
-                        gameList.append({"gameID":newGame[0]['gameID'], "player1ID":newGame[0]['player1ID'], "player2ID":newGame[0]['player2ID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":"", "player1Check":False, "player2Check":False})
-                        return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGame[0]['gameID'], "player1ID": newGame[0]["player1ID"], "player2ID":newGame[0]["player2ID"]}), 200, mimetype='application/json')      
-            
+                    newGameID = createID()
+                    gameList.append({"gameID":newGameID, "player1ID":playerId, "player2ID":checkqueue[x]['playerID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":"", "player1Check":False, "player2Check":False})
+                    playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID or i['playerID'] == checkqueue[x]['playerID'])]
+                    print(playerQueue)
+                    return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGameID, "player1ID": playerID, "player2ID":checkqueue[x]['playerID']}), 200, mimetype='application/json')            
             return Response(json.dumps({"STATUS": "SUCCESS", "message": "No game found"}), 200, mimetype='application/json')
         else:
             return Response(json.dumps({"STATUS": "SUCCESS", "message": "Not Enough Players"}), 200, mimetype='application/json')
     else:
-        try:
-            gameData = readFunctions.getGamebyPlayerIDAndStatus("playerID")
-        except:
-            print('no game available')
-        else:
-            if bool(gameData):
-                #gameResponse.append(Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json'))
-                return Response(json.dumps({"STATUS": "SUCCESS", "gameID":gameData[0]['gameID'], "player1ID":gameData[0]['player1ID'], "player2ID":gameData[0]['player2ID']}), 200, mimetype='application/json')
-            playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
-            return Response(json.dumps({"STATUS": "SUCCESS", "message": "Could not Join Game; player removed from queue"}), 200, mimetype='application/json')
+        playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
+        return Response(json.dumps({"STATUS": "SUCCESS", "message": "Could not Join Game; player removed from queue"}), 200, mimetype='application/json')
 
 ##################################################################################
 #################### UPDATE ####################################
