@@ -254,7 +254,7 @@ def addToGame():
                     newGameID = createID()
                     gameList.append({"gameID":newGameID, "player1ID":playerID, "player2ID":checkqueue[x]['playerID'], "player1Thrown":"", "player2Thrown":"", "player1Wins":0, "player2Wins":0, "result":"", "finalGameStatus":"", "player1Check":False, "player2Check":False})
                     playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID or i['playerID'] == checkqueue[x]['playerID'])]
-                    print(playerQueue)
+                    #print(playerQueue)
                     return Response(json.dumps({"STATUS": "SUCCESS", "gameID": newGameID, "player1ID": playerID, "player2ID":checkqueue[x]['playerID']}), 200, mimetype='application/json')            
             return Response(json.dumps({"STATUS": "SUCCESS", "message": "No game found"}), 200, mimetype='application/json')
         else:
@@ -421,7 +421,10 @@ def updateStats():
         print("player 2 updated")
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "unable to update player"}), 400, mimetype='application/json')
+    print(gameID)
+    print(gameList)
     gameList = [ i for i in gameList if not (i['gameID'] == gameID)]
+    print(gameList)
     return Response(json.dumps({"STATUS":"SUCCESS", "message":"Players and Game Successfully Updated"}), 200, mimetype='application/json')
 
 
