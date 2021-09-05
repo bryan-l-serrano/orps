@@ -9,6 +9,7 @@ import time
 import threading
 import random
 import string
+import otp
 
 app = Flask(__name__)
 CORS(app)
@@ -166,7 +167,7 @@ def login():
     playerData = request.get_json()
     try:
         getPlayer = readFunctions.getPlayerByUsername(playerData["username"])
-        if playerData["password"] == getPlayer[0]["password"]:
+        if otp.encryptStrings(playerData["password"], open("/orps/key.txt", "r").readline()) == getPlayer[0]["password"]:
             return Response(json.dumps({"STATUS":"SUCCESS","playerID":(getPlayer[0])["playerID"]}), 200, mimetype='application/json')
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "something went wrong with the request"}), 400, mimetype='application/json')

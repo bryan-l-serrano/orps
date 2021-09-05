@@ -4,22 +4,25 @@ import random
 import string
 import os
 import readFunctions
+import otp
 
 def createID():
     return ''.join(random.sample(string.ascii_letters + string.digits, k=20))
 
 def createPlayer(playerData):
     pID = createID()
-    data = (pID, playerData["userName"], playerData['password'])
+    key = open("/orps/key.txt", "r").readline()
+    print(key + "\n\n")
+    data = (pID, playerData["userName"], str(otp.encryptStrings(playerData['password'], key)))
     print(data)
     conn = sqlite3.connect('/orps/orps.db')
     print('connected to db')
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO PLAYER VALUES (?,?,?)", data)
+    cursor.execute("INSERT INTO PLAYER VALUES (?,?,?)", (data),)
     print('player created')
     psdat = (pID, 1100, 0, 0, 0, 0, 0)
-    cursor.execute("INSERT INTO PLAYER_STATS VALUES (?,?,?,?,?,?,?)", psdat)
+    cursor.execute("INSERT INTO PLAYER_STATS VALUES (?,?,?,?,?,?,?)", (psdat),)
     print('playerStats created')
     conn.commit()
 

@@ -13,7 +13,7 @@ cursor.execute("DROP TABLE IF EXISTS PLAYER")
 sqlCommand = '''CREATE TABLE PLAYER(
 playerID CHAR(20) PRIMARY KEY NOT NULL,
 username CHAR(30) UNIQUE NOT NULL,
-password CHAR(30) NOT NULL
+password CHAR(240) NOT NULL
 )'''
 
 cursor.execute(sqlCommand)
