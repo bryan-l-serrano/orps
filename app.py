@@ -200,36 +200,9 @@ def addToQueue():
         return Response(json.dumps({"STATUS": "SUCCESS", "message": "Player added to Queue"}), 200, mimetype='application/json')
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "Issue adding player to queue"}), 400, mimetype='application/json')
-    
-    # set_interval(createGameCheckerFunction(playerID, gameFound, timesAttempted), 10, exitFunction(timesAttempted), gameResponse)
-
-    # while len(gameResponse) < 1:
         
 
     return gameResponse[0]
-
-        # if len(playerQueue)>= 2:
-        #     playerData = {}
-        #     eloDifference = 999999
-        #     closestRatedPlayerInQueue = 0
-        #     firstPlayer = playerQueue[0]
-        #     for x in range(1, len(playerQueue)):
-        #         if abs(firstPlayer["eloRating"] - playerQueue[x]["eloRating"]) < eloDifference:
-        #             eloDifference = abs(firstPlayer["eloRating"] - playerQueue[x]["eloRating"])
-        #             closestRatedPlayerInQueue = x
-        #             if eloDifference == 0:
-        #                 playerData = {"player1ID":firstPlayer["playerID"], "player2ID":playerQueue[x]["playerID"]}
-        #                 print(playerData)
-        #     if not bool(playerData):
-        #         playerData = {"player1ID":firstPlayer["playerID"], "player2ID":playerQueue[closestRatedPlayerInQueue]["playerID"]}
-        #         print(playerData)
-        #     try:
-        #         createFunction.createGame(playerData)
-        #         del playerQueue[closestRatedPlayerInQueue]
-        #         del playerQueue[0]
-        #     except:
-        #         print("Not able to create game")
-        # print(playerQueue)
 
 @app.route('/orps/check', methods=['POST'])
 def addToGame():
@@ -421,11 +394,45 @@ def updateStats():
         print("player 2 updated")
     except:
         return Response(json.dumps({"STATUS": "ERROR", "message": "unable to update player"}), 400, mimetype='application/json')
-    print(gameID)
-    print(gameList)
+    #print(gameID)
+    #print(gameList)
     gameList = [ i for i in gameList if not (i['gameID'] == gameID)]
-    print(gameList)
+    #print(gameList)
     return Response(json.dumps({"STATUS":"SUCCESS", "message":"Players and Game Successfully Updated"}), 200, mimetype='application/json')
+
+
+################################################
+############## DELETE ##########################
+
+@app.route('/orps/player/removeFromQueue', methods = ['POST'])
+def removePlayerFromQueue():
+    global playerQueue
+    if not request.json:
+        return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    playerData = request.get_json()
+    playerID = playerData['playerID']
+    try:
+        playerQueue = [i for i in playerQueue if not (i['playerID'] == playerID)]
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "unable to remove player from queue"}), 400, mimetype='application/json')
+    else:
+        return Response(json.dumps({"STATUS":"SUCCESS", "message":"Player removed from queue"}), 200, mimetype='application/json')
+
+
+@app.route('/orps/game/removeGame', methods = ['POST'])
+def removeGameFromGameList():
+    global gameList
+    if not request.json:
+        return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
+    playerData = request.get_json()
+    playerID = playerData['playerID']
+    gameID = playerData['gameID']
+    try:
+        gameList = [i for i in gameList if not (i['gameID'] == gameID )]
+    except:
+        return Response(json.dumps({"STATUS": "ERROR", "message": "unable to game from game list"}), 400, mimetype='application/json')
+    else:
+        return Response(json.dumps({"STATUS":"SUCCESS", "message":"Game removed from list"}), 200, mimetype='application/json')
 
 
 if __name__ == '__main__':
