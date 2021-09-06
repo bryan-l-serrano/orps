@@ -166,7 +166,7 @@ def login():
         return json.dumps({"STATUS": "ERROR", "message": "No request sent"}), 400
     playerData = request.get_json()
     try:
-        getPlayer = readFunctions.getPlayerByUsername(playerData["username"])
+        getPlayer = readFunctions.getPlayerByUsername(playerData["username"].lower())
         if otp.encryptStrings(playerData["password"], open("/orps/key.txt", "r").readline()) == getPlayer[0]["password"]:
             return Response(json.dumps({"STATUS":"SUCCESS","playerID":(getPlayer[0])["playerID"]}), 200, mimetype='application/json')
     except:

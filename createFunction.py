@@ -12,21 +12,19 @@ def createID():
 def createPlayer(playerData):
     pID = createID()
     key = open("/orps/key.txt", "r").readline()
-    print(key + "\n\n")
-    data = (pID, playerData["userName"], str(otp.encryptStrings(playerData['password'], key)))
-    print(data)
+    data = (pID, playerData["userName"].lower(), str(otp.encryptStrings(playerData['password'], key)))
+    #print(data)
     conn = sqlite3.connect('/orps/orps.db')
-    print('connected to db')
+    #print('connected to db')
     cursor = conn.cursor()
 
     cursor.execute("INSERT INTO PLAYER VALUES (?,?,?)", (data),)
-    print('player created')
     psdat = (pID, 1100, 0, 0, 0, 0, 0)
     cursor.execute("INSERT INTO PLAYER_STATS VALUES (?,?,?,?,?,?,?)", (psdat),)
-    print('playerStats created')
+    #print('playerStats created')
     conn.commit()
 
-    print('closing connection to db')
+    #print('closing connection to db')
     conn.close()
 
     return True
@@ -34,15 +32,15 @@ def createPlayer(playerData):
 def createGame(player1ID, player2ID):
     gID = createID()
     data = (gID, player1ID, player2ID, "", "CREATED", "", "", 1, 0, 0)
-    print(data)
+    #print(data)
     conn = sqlite3.connect('/orps/orps.db')
-    print('connected to db')
+    #print('connected to db')
     cursor = conn.cursor()
 
     cursor.execute("INSERT INTO GAME VALUES (?,?,?,?,?,?,?,?,?,?)", data)
-    print('game created')
+    #print('game created')
     conn.commit()
-    print('closing connection to db')
+    #print('closing connection to db')
     conn.close()
     returnGame = readFunctions.getGamebyID(gID)
     return returnGame
